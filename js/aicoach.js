@@ -90,8 +90,7 @@ async function fetchFromAIParams(query, state) {
     return generateMockAIResponse(query, state) + "<br><br>*(Note: This is a simulated response. Please set up VITE_AI_API_KEY in your .env or server environment to enable live AI responses)*";
   }
   
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const prompt = `
 You are an expert stock trading coach analyzing a user's trading journal. 
 Here is their logged trade history:
