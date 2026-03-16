@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/erikojeda01/stock-desk-1.0/issues"
   },
-  "homepage": "https://github.com/erikojeda01/stock-desk-1.0#readme"
+  "homepage": "https://github.com/erikojeda01/stock-desk-1.0#readme",
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
 }
