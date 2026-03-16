@@ -1,0 +1,23 @@
+{
+  "name": "stock-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erikojeda01/stock-desk-1.0.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/erikojeda01/stock-desk-1.0/issues"
+  },
+  "homepage": "https://github.com/erikojeda01/stock-desk-1.0#readme"
+}
