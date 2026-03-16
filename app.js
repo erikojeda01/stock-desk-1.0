@@ -2,6 +2,9 @@
   StockDesk Main App Logic
   Handles Navigation and Global UI interactions 
 */
+import { Analytics } from "@vercel/analytics/next";
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation

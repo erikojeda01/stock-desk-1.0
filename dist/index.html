@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockDesk | Premium Trading Journal</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" crossorigin src="/assets/index-BQDQBKFq.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DY4EAw38.css">
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="ph ph-trend-up logo-icon"></i>
+                    <span>StockDesk</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <p class="nav-section-title">Overview</p>
+                    <a href="#" class="nav-item active" data-target="dashboard">
+                        <i class="ph ph-squares-four"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <p class="nav-section-title">Journaling</p>
+                    <a href="#" class="nav-item" data-target="trades">
+                        <i class="ph ph-list-dashes"></i>
+                        <span>Trades</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="calendar">
+                        <i class="ph ph-calendar-blank"></i>
+                        <span>Calendar</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="journal">
+                        <i class="ph ph-notebook"></i>
+                        <span>Journal</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <p class="nav-section-title">Analysis</p>
+                    <a href="#" class="nav-item" data-target="aicoach">
+                        <i class="ph ph-robot"></i>
+                        <span>AI Coach</span>
+                        <span class="badge new-badge">Beta</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="upgrade-card">
+                    <i class="ph ph-crown"></i>
+                    <div>
+                        <h4>Pro Plan</h4>
+                        <p>Unlock advanced analytics.</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Topbar (Dynamic Title) -->
+            <header class="topbar">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="topbar-actions">
+                    <div class="market-status">
+                        <span class="status-dot"></span>
+                        Market is Open
+                    </div>
+                    <button class="btn-secondary" id="btn-open-import">
+                        <i class="ph ph-upload-simple"></i> Import CSV
+                    </button>
+                    <button class="btn-primary" id="btn-add-trade">
+                        <i class="ph ph-plus"></i> New Trade
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=Trader&background=random&color=fff" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Views Container -->
+            <div class="view-container" id="view-container">
+                <!-- Dashboard View -->
+                <section id="view-dashboard" class="page-view active">
+                    <!-- Dashboard HTML injected here via JS -->
+                </section>
+
+                <!-- Trades View -->
+                <section id="view-trades" class="page-view">
+                </section>
+
+                <!-- Calendar View -->
+                <section id="view-calendar" class="page-view">
+                </section>
+
+                <!-- Journal View -->
+                <section id="view-journal" class="page-view">
+                </section>
+
+                <!-- AI Coach View -->
+                <section id="view-aicoach" class="page-view">
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals (e.g., Add Trade) -->
+    <div class="modal-overlay" id="add-trade-modal">
+        <div class="modal glass-panel">
+            <header class="modal-header">
+                <h2>Log New Trade</h2>
+                <button class="icon-btn close-modal" id="close-trade-modal"><i class="ph ph-x"></i></button>
+            </header>
+            <form id="add-trade-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Symbol</label>
+                        <input type="text" id="trade-symbol" placeholder="e.g. AAPL" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="trade-type" required>
+                            <option value="buy">Long (Buy)</option>
+                            <option value="sell">Short (Sell)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Entry Date</label>
+                        <input type="date" id="trade-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Shares/Contracts</label>
+                        <input type="number" id="trade-shares" min="1" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Entry Price ($)</label>
+                        <input type="number" id="trade-entry" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Exit Price ($)</label>
+                        <input type="number" id="trade-exit" min="0" step="0.01" required>
+                    </div>
+                </div>
+                <!-- Optional Stop Loss/Take Profit for R/R calculation -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stop Loss ($) <span class="optional">(opt)</span></label>
+                        <input type="number" id="trade-sl" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Take Profit ($) <span class="optional">(opt)</span></label>
+                        <input type="number" id="trade-tp" min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Trade</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Import Trades Modal -->
+    <div class="modal-overlay" id="import-trades-modal">
+        <div class="modal glass-panel" style="max-width: 600px;">
+            <header class="modal-header">
+                <h2>Import Trades (CSV)</h2>
+                <button class="icon-btn close-modal" id="close-import-modal"><i class="ph ph-x"></i></button>
+            </header>
+            
+            <div id="import-step-1">
+                <p style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.875rem;">
+                    Upload a CSV file from your broker. We will automatically try to map your columns to the StockDesk format.
+                </p>
+                <div id="csv-drop-zone" style="border: 2px dashed rgba(255,255,255,0.2); padding: 3rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                    <i class="ph ph-upload-simple" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <p style="font-weight: 500;">Click to select or drag and drop your CSV file here</p>
+                    <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                </div>
+            </div>
+
+            <div id="import-step-2" style="display: none;">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                    Review the column mapping below. If something looks incorrect, select the right column from the dropdown.
+                </p>
+                <form id="import-mapping-form">
+                    <div id="mapping-container" style="display: flex; flex-direction: column; gap: 1rem; max-height: 350px; overflow-y: auto; padding-right: 0.5rem; margin-bottom: 1.5rem;">
+                        <!-- Injected via JS -->
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="btn-cancel-import">Cancel</button>
+                        <button type="submit" class="btn-primary" id="btn-confirm-import">Import Trades</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Logic -->
+</body>
+</html>

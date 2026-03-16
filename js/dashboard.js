@@ -3,10 +3,34 @@
 */
 
 let dashboardChartInstance = null;
+let selectedSymbols = new Set();
+let knownSymbols = new Set();
+
+// Generate distinct colors based on string hash for consistent coloring
+function getColorForSymbol(symbol, alpha = 1) {
+  let hash = 0;
+  for (let i = 0; i < symbol.length; i++) {
+    hash = symbol.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash % 360);
+  return `hsla(${hue}, 70%, 60%, ${alpha})`;
+}
 
 function renderDashboard(state) {
   const container = document.getElementById('view-dashboard');
+  if (!container) return;
   const trades = state.trades;
+
+  const uniqueSymbols = [...new Set(trades.map(t => (t.symbol ? t.symbol.toUpperCase() : 'UNKNOWN')))].sort();
+  
+  uniqueSymbols.forEach(sym => {
+    if (!knownSymbols.has(sym)) {
+      knownSymbols.add(sym);
+      selectedSymbols.add(sym);
+    }
+  });
+
+  const filteredTrades = trades.filter(t => selectedSymbols.has(t.symbol ? t.symbol.toUpperCase() : 'UNKNOWN'));
 
   // Calculate Stats
   let totalPnl = 0;
@@ -16,7 +40,7 @@ function renderDashboard(state) {
   let totalReward = 0;
   let rrCount = 0;
 
-  trades.forEach(t => {
+  filteredTrades.forEach(t => {
     totalPnl += t.pnl;
     if (t.pnl > 0) wins++;
     else if (t.pnl < 0) losses++;
@@ -28,17 +52,29 @@ function renderDashboard(state) {
     }
   });
 
-  const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(1) : 0;
+  const winRate = filteredTrades.length > 0 ? ((wins / filteredTrades.length) * 100).toFixed(1) : 0;
   const avgRR = rrCount > 0 ? (totalReward / rrCount).toFixed(2) : '0.00';
 
   const pnlClass = totalPnl >= 0 ? 'text-success' : 'text-danger';
   const pnlPrefix = totalPnl >= 0 ? '+' : '';
 
+  const filterHtml = uniqueSymbols.length > 0 ? `
+    <div class="symbol-filters">
+      ${uniqueSymbols.map(sym => `
+        <label class="symbol-filter-label ${selectedSymbols.has(sym) ? 'selected' : ''}" data-symbol="${sym}">
+          <input type="checkbox" value="${sym}" class="symbol-checkbox" style="display:none;">
+          ${sym}
+        </label>
+      `).join('')}
+    </div>
+  ` : '';
+
   // Render HTML structure
   container.innerHTML = `
+    ${filterHtml}
     <div class="dashboard-grid">
       <div class="stat-card glass-panel">
-        <div class="stat-title">Total P&L</div>
+        <div class="stat-title">Filtered P&L</div>
         <div class="stat-value ${pnlClass}">${pnlPrefix}$${totalPnl.toFixed(2)}</div>
       </div>
       <div class="stat-card glass-panel">
@@ -58,24 +94,59 @@ function renderDashboard(state) {
     </div>
   `;
 
+  // Attach event listeners to checkboxes
+  const labels = container.querySelectorAll('.symbol-filter-label');
+  labels.forEach(label => {
+    label.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent double triggering with the hidden checkbox
+      const sym = label.getAttribute('data-symbol');
+      if (selectedSymbols.has(sym)) {
+        selectedSymbols.delete(sym);
+      } else {
+        selectedSymbols.add(sym);
+      }
+      renderDashboard(window.appStore.state);
+    });
+  });
+
   // Render Chart
   renderChart(trades);
 }
 
 function renderChart(trades) {
   const ctx = document.getElementById('equityChart');
-  if (!ctx) return;
+  if (!ctx || trades.length === 0) return;
 
-  // Prepare data: cumulative sum over time (ascending)
   const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
-  let runningTotal = 0;
-  const labels = [];
-  const data = [];
+  const uniqueDates = [...new Set(sortedTrades.map(t => t.date))];
 
-  sortedTrades.forEach(t => {
-    runningTotal += t.pnl;
-    labels.push(t.date);
-    data.push(runningTotal);
+  const datasets = [];
+
+  selectedSymbols.forEach(sym => {
+    const data = [];
+    let cumulativePnl = 0;
+    
+    uniqueDates.forEach(date => {
+      const tradesOnDate = sortedTrades.filter(t => t.date === date && (t.symbol ? t.symbol.toUpperCase() : 'UNKNOWN') === sym);
+      tradesOnDate.forEach(t => {
+        cumulativePnl += t.pnl;
+      });
+      data.push(cumulativePnl);
+    });
+
+    const color = getColorForSymbol(sym);
+    const bgColor = getColorForSymbol(sym, 0.2);
+
+    datasets.push({
+      label: sym,
+      data: data,
+      borderColor: color,
+      backgroundColor: bgColor,
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: color
+    });
   });
 
   if (dashboardChartInstance) {
@@ -85,32 +156,37 @@ function renderChart(trades) {
   dashboardChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
-      datasets: [{
-        label: 'Cumulative P&L',
-        data: data,
-        borderColor: '#6B46C1', // Primary color
-        backgroundColor: 'rgba(107, 70, 193, 0.2)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#21D4FD'
-      }]
+      labels: uniqueDates,
+      datasets: datasets
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
       plugins: {
-        legend: { display: false }
+        legend: { 
+          display: true,
+          labels: { color: '#ffffff' }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(10, 10, 12, 0.9)',
+          titleColor: '#A1A1AA',
+          bodyColor: '#ffffff',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1
+        }
       },
       scales: {
         x: {
           grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94A3B8' }
+          ticks: { color: '#A1A1AA' }
         },
         y: {
           grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94A3B8' }
+          ticks: { color: '#A1A1AA' }
         }
       }
     }

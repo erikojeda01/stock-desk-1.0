@@ -22,5 +22,8 @@
   "homepage": "https://github.com/erikojeda01/stock-desk-1.0#readme",
   "devDependencies": {
     "vite": "^8.0.0"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
   }
 }
