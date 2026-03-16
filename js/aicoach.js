@@ -82,8 +82,11 @@ function summarizeTrades(trades) {
 
 async function fetchFromAIParams(query, state) {
   const trades = state.trades;
-  // Use optional chaining for import.meta.env just in case it's not available in raw builds
-  const apiKey = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_AI_API_KEY : null;
+  // Extract API key, and remove any weird accidental quotes/spaces from Vercel env
+  let apiKey = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_AI_API_KEY : null;
+  if (apiKey) {
+    apiKey = apiKey.replace(/^["']|["']$/g, '').trim();
+  }
 
   if (!apiKey) {
     // Fallback to mock if no API key is set
