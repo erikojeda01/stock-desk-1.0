@@ -93,35 +93,46 @@ async function fetchFromAIParams(query, state) {
     return generateMockAIResponse(query, state) + "<br><br>*(Note: This is a simulated response. Please set up VITE_AI_API_KEY in your .env or server environment to enable live AI responses)*";
   }
   
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const endpoint = `https://api.openai.com/v1/chat/completions`;
+
   const prompt = `
 You are an expert stock trading coach analyzing a user's trading journal. 
 Here is their logged trade history:
 ${summarizeTrades(trades)}
 
-User Question: ${query}
-
 Provide a concise, helpful, and insightful response based strictly on their data. Keep it under 150 words. Format important keywords using markdown **bold**.
 `;
 
   const payload = {
-    contents: [{
-      parts: [{ text: prompt }]
-    }]
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "system", content: prompt },
+      { role: "user", content: query }
+    ]
   };
 
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
     body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
-    throw new Error('API Request failed: ' + response.statusText);
+    let errMsg = response.statusText;
+    try {
+      const errBody = await response.json();
+      if (errBody && errBody.error && errBody.error.message) {
+        errMsg = errBody.error.message;
+      }
+    } catch (e) {}
+    throw new Error('API Request failed: ' + errMsg);
   }
 
   const data = await response.json();
-  const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const aiText = data.choices?.[0]?.message?.content;
   if (!aiText) throw new Error("No valid response from AI");
 
   return aiText;
