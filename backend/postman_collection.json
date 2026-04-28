@@ -1,0 +1,118 @@
+{
+  "info": {
+    "name": "Stock Desk API",
+    "description": "Postman collection for the Stock Desk backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "portfolioId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Auth — Register",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/register",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Erik\",\n  \"email\": \"erik@example.com\",\n  \"password\": \"changeme123\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const data = pm.response.json();",
+              "pm.collectionVariables.set('accessToken', data.accessToken);",
+              "pm.collectionVariables.set('refreshToken', data.refreshToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth — Login",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/login",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"demo@stockdesk.io\",\n  \"password\": \"demo1234\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const data = pm.response.json();",
+              "pm.collectionVariables.set('accessToken', data.accessToken);",
+              "pm.collectionVariables.set('refreshToken', data.refreshToken);"
+            ]
+          }
+        }
+      ]
+    },
+    { "name": "Auth — Me", "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" } },
+    {
+      "name": "Auth — Refresh",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/refresh",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+      }
+    },
+    { "name": "Stocks — List", "request": { "method": "GET", "url": "{{baseUrl}}/stocks" } },
+    { "name": "Stocks — Quote AAPL", "request": { "method": "GET", "url": "{{baseUrl}}/stocks/AAPL" } },
+    { "name": "Stocks — Search", "request": { "method": "GET", "url": "{{baseUrl}}/stocks/search?q=apple" } },
+    { "name": "Portfolios — List", "request": { "method": "GET", "url": "{{baseUrl}}/portfolios" } },
+    {
+      "name": "Portfolios — Create",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/portfolios",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tech Bets\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.collectionVariables.set('portfolioId', pm.response.json().portfolio._id);"]
+          }
+        }
+      ]
+    },
+    { "name": "Portfolios — Summary", "request": { "method": "GET", "url": "{{baseUrl}}/portfolios/{{portfolioId}}/summary" } },
+    {
+      "name": "Transactions — Buy AAPL",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/transactions",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"portfolio\": \"{{portfolioId}}\",\n  \"symbol\": \"AAPL\",\n  \"type\": \"BUY\",\n  \"quantity\": 5,\n  \"price\": 195.32\n}" }
+      }
+    },
+    {
+      "name": "Transactions — Trade at market",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/transactions/trade",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"portfolio\": \"{{portfolioId}}\",\n  \"symbol\": \"NVDA\",\n  \"type\": \"BUY\",\n  \"quantity\": 1\n}" }
+      }
+    }
+  ]
+}

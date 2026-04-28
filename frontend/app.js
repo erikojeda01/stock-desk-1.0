@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Form Submit
-  addTradeForm.addEventListener('submit', (e) => {
+  addTradeForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const tradeData = {
@@ -84,12 +84,29 @@ document.addEventListener('DOMContentLoaded', () => {
       tp: document.getElementById('trade-tp').value || null
     };
 
-    window.appStore.addTrade(tradeData);
-    closeModal();
-    
-    // If we're on the dashboard or trades view, switchView event will trigger re-render 
-    // but appStore already has observers. We'll just rely on appStore.subscribe in the respective files.
+    const submitBtn = addTradeForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving…';
+    try {
+      await window.appStore.addTrade(tradeData);
+      closeModal();
+    } catch (err) {
+      alert(err?.message || 'Failed to save trade');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Save Trade';
+    }
   });
+
+  // Logout button injected in topbar
+  const userProfile = document.querySelector('.user-profile');
+  if (userProfile) {
+    userProfile.style.cursor = 'pointer';
+    userProfile.title = 'Click to sign out';
+    userProfile.addEventListener('click', () => {
+      if (confirm('Sign out?')) window.appStore.logout();
+    });
+  }
 
   // Init
   switchView('dashboard');

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0c"/>
+      <stop offset="100%" stop-color="#111114"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="20%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="85%" cy="80%" r="55%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="lineUp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0"/>
+      <stop offset="20%" stop-color="#10b981" stop-opacity="0.7"/>
+      <stop offset="80%" stop-color="#6366f1" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="fillUp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="400" fill="url(#bg)"/>
+  <rect width="1280" height="400" fill="url(#glow1)"/>
+  <rect width="1280" height="400" fill="url(#glow2)"/>
+
+  <!-- Equity curve area -->
+  <path d="M780 320 L820 300 L860 280 L900 290 L940 240 L980 250 L1020 200 L1060 210 L1100 160 L1140 170 L1180 110 L1220 90 L1260 60 L1260 380 L780 380 Z"
+        fill="url(#fillUp)"/>
+  <path d="M780 320 L820 300 L860 280 L900 290 L940 240 L980 250 L1020 200 L1060 210 L1100 160 L1140 170 L1180 110 L1220 90 L1260 60"
+        stroke="url(#lineUp)" stroke-width="2.5" fill="none"/>
+
+  <!-- Logo mark -->
+  <g transform="translate(96 130)">
+    <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#logoGrad)"/>
+    <path d="M14 44 L26 32 L36 40 L50 22" stroke="#0a0a0c" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="50" cy="22" r="3.2" fill="#0a0a0c"/>
+  </g>
+
+  <!-- Wordmark + tagline -->
+  <g font-family="Inter, system-ui, -apple-system, Helvetica, Arial, sans-serif" fill="#fff">
+    <text x="180" y="180" font-size="56" font-weight="700" letter-spacing="-0.5">StockDesk</text>
+    <text x="180" y="220" font-size="22" font-weight="400" fill="#a1a1aa">The trading journal that turns your tape into an edge.</text>
+  </g>
+
+  <g font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500">
+    <g transform="translate(180 260)">
+      <rect width="68" height="26" rx="13" fill="rgba(99,102,241,0.15)" stroke="rgba(99,102,241,0.4)"/>
+      <text x="34" y="17" text-anchor="middle" fill="#c7d2fe">Vite</text>
+    </g>
+    <g transform="translate(258 260)">
+      <rect width="80" height="26" rx="13" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)"/>
+      <text x="40" y="17" text-anchor="middle" fill="#a7f3d0">Chart.js</text>
+    </g>
+    <g transform="translate(348 260)">
+      <rect width="92" height="26" rx="13" fill="rgba(244,114,182,0.15)" stroke="rgba(244,114,182,0.4)"/>
+      <text x="46" y="17" text-anchor="middle" fill="#fbcfe8">CSV Import</text>
+    </g>
+    <g transform="translate(450 260)">
+      <rect width="106" height="26" rx="13" fill="rgba(251,191,36,0.15)" stroke="rgba(251,191,36,0.4)"/>
+      <text x="53" y="17" text-anchor="middle" fill="#fde68a">Equity Curve</text>
+    </g>
+  </g>
+</svg>

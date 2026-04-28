@@ -174,43 +174,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* Final Import Action */
-  mappingForm.addEventListener('submit', (e) => {
+  mappingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const submitBtn = document.getElementById('btn-confirm-import');
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Importing…';
 
     // Gather final mappings
     const mappings = {};
     const selects = mappingContainer.querySelectorAll('.mapping-select');
     selects.forEach(select => {
-      mappings[select.dataset.field] = select.value; // Map our internal keys to CSV headers
+      mappings[select.dataset.field] = select.value;
     });
 
-    let importedCount = 0;
+    const trades = [];
 
-    // Process rows based on mapping
     parsedRawData.forEach(row => {
-      // Ensure we have at least Symbol and Date to consider it a trade
       const mappedSymbol = row[mappings.symbol];
       const mappedDate = row[mappings.date];
-
-      if (!mappedSymbol || !mappedDate) return; // Skip invalid rows
+      if (!mappedSymbol || !mappedDate) return;
 
       let rawType = row[mappings.type] ? row[mappings.type].toLowerCase() : 'buy';
       let cleanType = rawType.includes('sell') || rawType.includes('short') ? 'sell' : 'buy';
 
-      // Parse Floats safely
       const cleanShares = parseFloat((row[mappings.shares] || "1").replace(/[^0-9.-]+/g,""));
       const cleanEntry = parseFloat((row[mappings.entry] || "0").replace(/[^0-9.-]+/g,""));
       const cleanExit = parseFloat((row[mappings.exit] || "0").replace(/[^0-9.-]+/g,""));
 
-      // Clean Date safely (YYYY-MM-DD expected, broker might give MM/DD/YYYY HH:MM)
-      // We will try standard JS Date parsing and extract just the YYYY-MM-DD.
-      let cleanDate = new Date().toISOString().split('T')[0]; // fallback
+      let cleanDate = new Date().toISOString().split('T')[0];
       const parsedDate = new Date(mappedDate);
       if (!isNaN(parsedDate)) {
         cleanDate = parsedDate.toISOString().split('T')[0];
       }
 
-      const tradeData = {
+      trades.push({
         symbol: mappedSymbol.toUpperCase(),
         type: cleanType,
         date: cleanDate,
@@ -218,15 +217,20 @@ document.addEventListener('DOMContentLoaded', () => {
         entry: isNaN(cleanEntry) ? 0 : cleanEntry,
         exit: isNaN(cleanExit) ? 0 : cleanExit,
         sl: null,
-        tp: null
-      };
-
-      window.appStore.addTrade(tradeData);
-      importedCount++;
+        tp: null,
+      });
     });
 
-    alert(`Successfully imported ${importedCount} trades!`);
-    closeImportModal();
+    try {
+      await window.appStore.addTradesBulk(trades);
+      alert(`Successfully imported ${trades.length} trades!`);
+      closeImportModal();
+    } catch (err) {
+      alert(err?.message || 'Import failed');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
   });
 
   // Simple CSV parser handling standard comma delimited with quotes

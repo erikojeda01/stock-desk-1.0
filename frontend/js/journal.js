@@ -110,13 +110,24 @@ function renderJournalForm(existingEntry = null) {
     </form>
   `;
 
-  document.getElementById('journal-form').addEventListener('submit', (e) => {
+  document.getElementById('journal-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    window.appStore.addJournalEntry({
-      date: document.getElementById('journal-date').value,
-      mood: document.getElementById('journal-mood').value,
-      reflection: document.getElementById('journal-reflection').value
-    });
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Saving…';
+    try {
+      await window.appStore.addJournalEntry({
+        date: document.getElementById('journal-date').value,
+        mood: document.getElementById('journal-mood').value,
+        reflection: document.getElementById('journal-reflection').value
+      });
+    } catch (err) {
+      alert(err?.message || 'Failed to save entry');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
   });
 }
 
